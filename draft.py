@@ -10,11 +10,11 @@ import json
 import billboard
 from collections import defaultdict, Counter
 from models import *
-# import config
+import config
 
 
-# sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=config.CLIENT_ID,
-#                                                            client_secret=config.CLIENT_SECRET))
+sp = spotipy.Spotify(auth_manager=SpotifyClientCredentials(client_id=config.CLIENT_ID,
+                                                           client_secret=config.CLIENT_SECRET))
 
 
 
@@ -158,26 +158,13 @@ def artist_with_most_tracks(tracks: List[Track]) -> (Artist, int): # type: ignor
     This function finds the artist with most number of tracks on the list
     If there is a tie, you may return any of the artists
     '''         
-    arts = {} # these structures will be useful!
+    tally = Counter() # these structures will be useful!
     for track in tracks:
         for artist in track.artists:
-            if artist.name in arts:
-                arts[artist.name] += 1
-            else:
-                arts[artist.name] = 1
-    max_artist = max(arts, key=arts.get)
-    max_num = arts[max_artist]
-    for track in tracks:
-        for artist in track.artists:
-            if artist.name == max_artist:
-                return (artist, max_num)
-
-    
-    # for track in tracks:
-    #     for artist in track.artists:
-    #         if artist.name == top_artist_name:
-    #             return (artist, arts[top_artist_name])
-
+            tally[artist.name] += 1
+    arts = dict(tally)
+    top_artist = max(arts, key=arts.get)
+    return top_artist
 
 
 
@@ -235,15 +222,8 @@ def energy_plot(tracks: List[Track]):
 
 
 
+# ---------------------------------------------------------------------
 
-def main():
-    # top100Tracks = getHot100()
-    # df = getTrackDataFrame(top100Tracks)
-    # print(df.head())
-    # artist, num_track = artist_with_most_tracks(top100Tracks)
-    # print("%s has the most number of tracks on this week's Hot 100 at a whopping %d tracks!" % (artist.name, num_track))
-    tracks_df = getPlaylist('https://open.spotify.com/playlist/37i9dQZF1DWTvNyxOwkztu?si=023b6aa48e7f47cf')
-    instance = tracks_df[0]
-    print(artist_with_most_tracks(tracks_df))
-
-# main()
+tracks_df = getPlaylist('https://open.spotify.com/playlist/37i9dQZF1DWTvNyxOwkztu?si=023b6aa48e7f47cf')
+instance = tracks_df[0]
+print(energy_plot(tracks_df))
